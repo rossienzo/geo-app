@@ -1,0 +1,1 @@
+# Aplicação de Monitoramento de Automóveis com GeoFencing e detecção de acidentes utilizando os acelerômetros.
