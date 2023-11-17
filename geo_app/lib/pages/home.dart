@@ -50,7 +50,6 @@ class HomeState extends State<Home> {
               // Envia informações para o broker
               if (mqttService.client.connectionStatus?.state ==
                   MqttConnectionState.connected) {
-                //mqttService.publishMessage('location_topic','{"latitude": ${local.lat}, "longitude": ${local.long}}');
                 String topic = 'data_car_topic';
                 String jsonData =
                     '{"topic": "$topic", "message": {"position": {"latitude": "${local.lat}", "longitude": "${local.long}"}, "accelerometer": {"x": "${accs.x}", "y": "${accs.y}", "z": "${accs.z}"}}}';
