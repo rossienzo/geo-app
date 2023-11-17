@@ -7,6 +7,10 @@ class GeolocationService extends ChangeNotifier {
   double long = 0.0;
   String error = '';
 
+  GeolocationService() {
+    getPosition();
+  }
+
   // Pega a posição atual
   getPosition() async {
     try {
