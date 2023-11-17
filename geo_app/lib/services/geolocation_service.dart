@@ -1,31 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:geo_app/services/mqtt_service.dart';
 import 'package:geolocator/geolocator.dart';
 
-class GeolocationController extends ChangeNotifier {
-  MqttService mqttService;
+class GeolocationService extends ChangeNotifier {
   double lat = 0.0;
   double long = 0.0;
   String error = '';
-
-  GeolocationController(this.mqttService) {
-    Timer.periodic(const Duration(seconds: 5), (Timer t) => getPosition());
-  }
-
-  // Envia a localização para o broker
-  void publishLocation() {
-    final message = '{"latitude": $lat, "longitude": $long}';
-    mqttService.publishMessage('location_topic', message);
-  }
-
-  // Recebe atualizações de localização do broker
-  void subscribeToLocationUpdates() {
-    mqttService.subscribe('location_topic');
-    mqttService.setOnMessageReceived((message) {
-      print('Recebendo atualizações: ${message.payload}');
-    });
-  }
 
   // Pega a posição atual
   getPosition() async {

@@ -3,11 +3,11 @@ import json
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    client.subscribe("location_topic")
+    client.subscribe("data_car_topic")
 
 def on_message(client, userdata, msg):
     data = json.loads(msg.payload.decode('utf-8'))
-    print(f"ID do cliente: {client}, Tópico: {msg.topic} | Mensagem: {data}")
+    print(f"Tópico: {msg.topic} | Mensagem: {data}")
 
 client = mqtt.Client()
 client.on_connect = on_connect
