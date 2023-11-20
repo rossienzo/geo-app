@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geo_app/services/geolocation_service.dart';
 import 'package:geo_app/services/accelerometer_service.dart';
@@ -36,32 +38,51 @@ class HomeState extends State<Home> {
         leading: const Icon(Icons.location_on_outlined),
         title: const Text('GeoApp'),
       ),
-      body: ChangeNotifierProvider<GeolocationService>(
-          create: (context) => GeolocationService(),
-          child: Builder(builder: (context) {
-            final local = context.watch<GeolocationService>();
-            String message = 'Carregando...';
+      body: ChangeNotifierProvider<GeolocationService>(create: (context) {
+        final glcs = GeolocationService();
 
-            if (local.lat != 0 && local.long != 0) {
-              message = local.error == ''
-                  ? 'Latitude: ${local.lat}\nLongitude: ${local.long}'
-                  : local.error;
+        glcs.startTimer();
+        return glcs;
+      }, child: Builder(builder: (context) {
+        final local = context.watch<GeolocationService>();
+        String message = 'Carregando...';
 
-              // Envia informações para o broker
-              if (mqttService.client.connectionStatus?.state ==
-                  MqttConnectionState.connected) {
-                String topic = 'data_car_topic';
-                String jsonData =
-                    '{"topic": "$topic", "message": {"position": {"latitude": "${local.lat}", "longitude": "${local.long}"}, "accelerometer": {"x": "${accs.x}", "y": "${accs.y}", "z": "${accs.z}"}}}';
+        if (local.lat != 0 && local.long != 0) {
+          // Escreve a mensagem no app
+          message = local.error == ''
+              ? 'Latitude: ${local.lat}\nLongitude: ${local.long}'
+              : local.error;
 
-                mqttService.publishMessage(topic, jsonData);
-              } else {
-                message = 'Sem conexão com o broker';
-              }
-            }
+          // Envia informações para o broker
+          if (mqttService.client.connectionStatus?.state ==
+              MqttConnectionState.connected) {
+            sendData('data_car_topic');
+          } else {
+            message = 'Sem conexão com o broker';
+          }
+        }
 
-            return Center(child: Text(message));
-          })),
+        return Center(child: Text(message));
+      })),
     );
+  }
+
+  sendData(topic) {
+    var data = {
+      'topic': topic,
+      'message': {
+        'position': {
+          'latitude': glcs.lat,
+          'longitude': glcs.long,
+        },
+        'accelerometer': {
+          'x': accs.x,
+          'y': accs.y,
+          'z': accs.z,
+        }
+      }
+    };
+
+    mqttService.publishMessage(topic, jsonEncode(data));
   }
 }
