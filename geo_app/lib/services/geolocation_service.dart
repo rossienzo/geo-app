@@ -11,6 +11,11 @@ class GeolocationService extends ChangeNotifier {
     getPosition();
   }
 
+  // Envia periodicamente os dados para o broker
+  void startTimer({int seconds = 5}) {
+    Timer.periodic(Duration(seconds: seconds), (Timer t) => getPosition());
+  }
+
   // Pega a posição atual
   getPosition() async {
     try {

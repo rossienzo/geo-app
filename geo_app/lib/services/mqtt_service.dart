@@ -11,7 +11,6 @@ class MqttService {
     client.keepAlivePeriod = 20;
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
-    print(client.clientIdentifier);
   }
 
   void connect() {
