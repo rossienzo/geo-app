@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -20,15 +21,26 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   late MqttService mqttService;
-  late GeolocationService glcs;
-  late AccelerometerService accs;
+  late GeolocationService geoService;
+  late AccelerometerService accService;
+  late bool collision = false;
 
   HomeState() {
     mqttService = MqttService();
     mqttService.connect();
 
-    glcs = GeolocationService();
-    accs = AccelerometerService();
+    geoService = GeolocationService();
+    accService = AccelerometerService();
+
+    /*
+    // Inicia a simulação de batida a cada 5 segundos (por exemplo)
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (accService.simulateCollision()) {
+        collision = true;
+        sendData('topic/accident', qos: 2);
+      }
+    });
+    */
   }
 
   @override
@@ -39,10 +51,10 @@ class HomeState extends State<Home> {
         title: const Text('GeoApp'),
       ),
       body: ChangeNotifierProvider<GeolocationService>(create: (context) {
-        final glcs = GeolocationService();
+        final geoService = GeolocationService();
 
-        glcs.startTimer();
-        return glcs;
+        geoService.startTimer();
+        return geoService;
       }, child: Builder(builder: (context) {
         final local = context.watch<GeolocationService>();
         String message = 'Carregando...';
@@ -50,13 +62,13 @@ class HomeState extends State<Home> {
         if (local.lat != 0 && local.long != 0) {
           // Escreve a mensagem no app
           message = local.error == ''
-              ? 'Latitude: ${local.lat}\nLongitude: ${local.long}'
+              ? 'Latitude: ${local.lat}\nLongitude: ${local.long} \nBatida: ${collision}'
               : local.error;
 
           // Envia informações para o broker
           if (mqttService.client.connectionStatus?.state ==
               MqttConnectionState.connected) {
-            sendData('data_car_topic');
+            sendData('topic/location');
           } else {
             message = 'Sem conexão com o broker';
           }
@@ -67,22 +79,17 @@ class HomeState extends State<Home> {
     );
   }
 
-  sendData(topic) {
+  sendData(topic, {qos = 1}) {
     var data = {
-      'topic': topic,
+      'client_id': mqttService.clientId,
       'message': {
         'position': {
-          'latitude': glcs.lat,
-          'longitude': glcs.long,
-        },
-        'accelerometer': {
-          'x': accs.x,
-          'y': accs.y,
-          'z': accs.z,
+          'latitude': geoService.lat,
+          'longitude': geoService.long,
         }
       }
     };
 
-    mqttService.publishMessage(topic, jsonEncode(data));
+    mqttService.publishMessage(topic, jsonEncode(data), qos: qos);
   }
 }
