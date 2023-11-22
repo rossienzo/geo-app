@@ -1,1 +1,0 @@
-mosquitto_sub -h localhost -t "topic/data_car"

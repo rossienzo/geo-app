@@ -3,7 +3,8 @@ import json
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    client.subscribe("topic/data_car")
+    client.subscribe("topic/location")
+    client.subscribe("topic/accident")
 
 def on_message(client, userdata, msg):
     data = json.loads(msg.payload.decode('utf-8'))
