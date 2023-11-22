@@ -2,13 +2,16 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:uuid/uuid.dart';
 
+// public broker: mqtt.eclipseprojects.io
+const String serverURI = '10.0.2.2';
+
 class MqttService {
   late MqttServerClient client;
 
   MqttService() {
-    client = MqttServerClient('mqtt.eclipseprojects.io', const Uuid().v1());
+    client = MqttServerClient(serverURI, const Uuid().v1());
     client.port = 1883;
-    client.keepAlivePeriod = 20;
+    client.keepAlivePeriod = 60;
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
   }

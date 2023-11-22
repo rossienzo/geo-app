@@ -56,7 +56,7 @@ class HomeState extends State<Home> {
           // Envia informações para o broker
           if (mqttService.client.connectionStatus?.state ==
               MqttConnectionState.connected) {
-            sendData('data_car_topic');
+            sendData('topic/data_car');
           } else {
             message = 'Sem conexão com o broker';
           }
