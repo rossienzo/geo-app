@@ -81,7 +81,6 @@ class HomeState extends State<Home> {
 
   sendData(topic, {qos = 1}) {
     var data = {
-      'topic': topic,
       'client_id': mqttService.clientId,
       'message': {
         'position': {
