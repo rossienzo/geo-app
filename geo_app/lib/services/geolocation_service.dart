@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 class GeolocationService extends ChangeNotifier {
+  Timer? timer;
   double lat = 0.0;
   double long = 0.0;
   String error = '';
@@ -12,8 +13,13 @@ class GeolocationService extends ChangeNotifier {
   }
 
   // Envia periodicamente os dados para o broker
-  void startTimer({int seconds = 5}) {
-    Timer.periodic(Duration(seconds: seconds), (Timer t) => getPosition());
+  void getPositionPeriodic({int milliseconds = 2000, bool stop = false}) {
+    if (stop) {
+      timer?.cancel();
+    } else {
+      timer = Timer.periodic(
+          Duration(milliseconds: milliseconds), (Timer t) => getPosition());
+    }
   }
 
   // Pega a posição atual

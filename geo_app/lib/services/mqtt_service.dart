@@ -3,23 +3,36 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:uuid/uuid.dart';
 
 // public broker: mqtt.eclipseprojects.io
-const String serverURI = '10.0.2.2'; // localhost
 
 class MqttService {
+  String serverURI = '10.0.2.2'; // localhost
+
   late String clientId;
   late MqttServerClient client;
 
-  MqttService() {
-    clientId = const Uuid().v1();
-    client = MqttServerClient(serverURI, clientId);
-    client.port = 1883;
-    client.keepAlivePeriod = 60;
-    client.onConnected = onConnected;
-    client.onDisconnected = onDisconnected;
-  }
+  MqttService();
 
-  void connect() {
-    client.connect();
+  Future<MqttConnectionState> connect() async {
+    try {
+      clientId = const Uuid().v1();
+      client = MqttServerClient(serverURI, clientId);
+      client.port = 1883;
+      client.keepAlivePeriod = 60;
+      client.onConnected = onConnected;
+      client.onDisconnected = onDisconnected;
+
+      await client.connect();
+    } catch (e) {
+      print('Exception: $e');
+      client.disconnect();
+    }
+    if (client.connectionStatus?.state == MqttConnectionState.connected) {
+      print('Client connected successfully');
+    } else {
+      print('Connection failed - disconnecting');
+      client.disconnect();
+    }
+    return client.connectionStatus!.state;
   }
 
   void disconnect() {
@@ -44,7 +57,6 @@ class MqttService {
       default:
         mqttQos = MqttQos.atLeastOnce;
     }
-    print(mqttQos);
 
     client.publishMessage(topic, mqttQos, builder.payload!);
   }
@@ -65,6 +77,6 @@ class MqttService {
   }
 
   void onDisconnected() {
-    print('Connected to MQTT broker.');
+    print('Disconnected from MQTT broker.');
   }
 }
