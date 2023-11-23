@@ -94,7 +94,12 @@ class HomeState extends State<Home> {
           }
         }
 
-        return Center(child: Text(message));
+        return Center(
+            child: Text(message,
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  color: Colors.indigo,
+                )));
       })),
     );
   }
