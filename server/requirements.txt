@@ -1,3 +1,2 @@
-paho-mqtt==1.6.1
-
-
+flask-mqtt==1.1.1
+Flask==3.0.0

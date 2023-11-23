@@ -1,20 +1,41 @@
-import paho.mqtt.client as mqtt
-import json 
+from flask import Flask, jsonify, render_template
+from flask_mqtt import Mqtt
+import json
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    client.subscribe("topic/location")
-    client.subscribe("topic/accident")
+app = Flask(__name__)
+app.config['MQTT_BROKER_URL'] = 'localhost'
+app.config['MQTT_BROKER_PORT'] = 1883
+app.config['MQTT_KEEPALIVE'] = 60
+app.config['MQTT_TLS_ENABLED'] = False
 
-def on_message(client, userdata, msg):
-    data = json.loads(msg.payload.decode('utf-8'))
-    print(f"Tópico: {msg.topic} | Mensagem: {data}")
+mqtt = Mqtt(app)
+latitude = None
+longitude = None
+
+@mqtt.on_connect()
+def handle_connect(client, userdata, flags, rc):
+   print("Connected with result code "+str(rc))
+   mqtt.subscribe("topic/location")
+   mqtt.subscribe("topic/accident")
+
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+   global latitude, longitude
+   data = json.loads(message.payload.decode('utf-8'))
+
+   latitude = data['message']['position']['latitude']
+   longitude = data['message']['position']['longitude']
+   print(f"Tópico: {message.topic} | Mensagem: {data}")
 
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
+@app.route('/')
+def home():
+   return render_template('index.html')
 
-# public broker: mqtt.eclipseprojects.io
-client.connect("localhost", 1883, 60)
-client.loop_forever()
+@app.route('/location')
+def location():
+   return jsonify({'latitude': latitude, 'longitude': longitude})
+
+
+if __name__ == '__main__':
+   app.run(host='127.0.0.1', port=5000)
