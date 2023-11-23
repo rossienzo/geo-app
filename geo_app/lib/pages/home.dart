@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geo_app/pages/configuration.dart';
 import 'package:geo_app/services/geolocation_service.dart';
 import 'package:geo_app/services/accelerometer_service.dart';
 import 'package:geo_app/services/mqtt_service.dart';
@@ -9,9 +9,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
-  const Home({
-    super.key,
-  });
+  const Home({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -20,20 +18,22 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  late MqttService mqttService;
+  late MqttService mqttService = MqttService();
   late GeolocationService geoService;
   late AccelerometerService accService;
   late bool collision = false;
 
-  HomeState() {
-    mqttService = MqttService();
+  @override
+  void initState() {
+    super.initState();
     mqttService.connect();
-
     geoService = GeolocationService();
     accService = AccelerometerService();
+  }
 
+  HomeState() {
     /*
-    // Inicia a simulação de batida a cada 5 segundos (por exemplo)
+    // Inicia a simulação de batida a cada 5 segundos
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (accService.simulateCollision()) {
         collision = true;
@@ -49,11 +49,31 @@ class HomeState extends State<Home> {
       appBar: AppBar(
         leading: const Icon(Icons.location_on_outlined),
         title: const Text('GeoApp'),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              if (result == 'Geolocation') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Configuration(
+                            mqttService,
+                            geoService: geoService,
+                          )),
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'Geolocation',
+                child: Text('Configurações'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: ChangeNotifierProvider<GeolocationService>(create: (context) {
-        final geoService = GeolocationService();
-
-        geoService.startTimer();
+        geoService.getPositionPeriodic(seconds: 2);
         return geoService;
       }, child: Builder(builder: (context) {
         final local = context.watch<GeolocationService>();

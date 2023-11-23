@@ -17,4 +17,3 @@ client.on_message = on_message
 # public broker: mqtt.eclipseprojects.io
 client.connect("localhost", 1883, 60)
 client.loop_forever()
-
