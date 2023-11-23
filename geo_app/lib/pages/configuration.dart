@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geo_app/services/geolocation_service.dart';
 import 'package:geo_app/services/mqtt_service.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -17,6 +18,9 @@ class Configuration extends StatefulWidget {
 class ConfigurationState extends State<Configuration> {
   @override
   Widget build(BuildContext context) {
+    final TextEditingController inputNumberLocation =
+        TextEditingController(text: '2000');
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Configurações'),
@@ -27,7 +31,29 @@ class ConfigurationState extends State<Configuration> {
                 onTap: () => dialogBuilderConnection(
                       context,
                     ),
-                child: createIconText(Icons.topic, 'Conexão do MQTT')),
+                child: createIconText(Icons.topic, 'Alterar conexão do MQTT')),
+            Container(
+              height: 1,
+              color: Colors.grey[300],
+            ),
+            GestureDetector(
+                onTap: () => dialogBuilder(
+                      context,
+                      'Alterar tempo de envio de localização',
+                      'Tempo (milisegundos)',
+                      inputText: inputNumberLocation,
+                      onPressed: () {
+                        // Para o timer
+                        widget.geoService.getPositionPeriodic(stop: true);
+
+                        // Inicia com o novo tempo
+                        widget.geoService.getPositionPeriodic(
+                            milliseconds: int.parse(inputNumberLocation.text));
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                child: createIconText(
+                    Icons.alarm, 'Alterar tempo de envio de localização')),
             Container(
               height: 1,
               color: Colors.grey[300],
@@ -37,7 +63,10 @@ class ConfigurationState extends State<Configuration> {
   }
 
   Future<void> dialogBuilder(BuildContext context, String title, String label,
-      {bool isInput = true, String bodyText = '', Function? onPressed}) {
+      {bool isInput = true,
+      TextEditingController? inputText,
+      String bodyText = '',
+      Function? onPressed}) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -45,6 +74,11 @@ class ConfigurationState extends State<Configuration> {
           title: Text(title),
           content: isInput
               ? TextField(
+                  controller: inputText,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ], // Somente números
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: label,
@@ -69,6 +103,7 @@ class ConfigurationState extends State<Configuration> {
     );
   }
 
+  // Dialog para configurar a conexão do MQTT
   Future<void> dialogBuilderConnection(BuildContext context) {
     final TextEditingController inputHost =
         TextEditingController(text: widget.mqttService.serverURI);
@@ -83,7 +118,7 @@ class ConfigurationState extends State<Configuration> {
                     MqttConnectionState.connected;
 
             return AlertDialog(
-              title: const Text('Conexão do MQTT'),
+              title: const Text('Alterar conexão do MQTT'),
               content: !connectionStatus
                   ? TextField(
                       controller: inputHost,
@@ -109,7 +144,7 @@ class ConfigurationState extends State<Configuration> {
                           widget.mqttService.serverURI = inputHost.text;
                         }
                         await widget.mqttService.connect();
-                        widget.geoService.getPositionPeriodic(seconds: 2);
+                        widget.geoService.getPositionPeriodic();
                       }
                       // Atualiza o dialog
                       setState(() {});

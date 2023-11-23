@@ -13,18 +13,17 @@ class GeolocationService extends ChangeNotifier {
   }
 
   // Envia periodicamente os dados para o broker
-  void getPositionPeriodic({int seconds = 5, bool stop = false}) {
+  void getPositionPeriodic({int milliseconds = 2000, bool stop = false}) {
     if (stop) {
       timer?.cancel();
     } else {
       timer = Timer.periodic(
-          Duration(seconds: seconds), (Timer t) => getPosition());
+          Duration(milliseconds: milliseconds), (Timer t) => getPosition());
     }
   }
 
   // Pega a posição atual
   getPosition() async {
-    print("dadoasdasds");
     try {
       Position position = await currentPosition();
       lat = position.latitude;

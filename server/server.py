@@ -10,6 +10,7 @@ def on_message(client, userdata, msg):
     data = json.loads(msg.payload.decode('utf-8'))
     print(f"Tópico: {msg.topic} | Mensagem: {data}")
 
+
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message

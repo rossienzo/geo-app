@@ -73,7 +73,7 @@ class HomeState extends State<Home> {
         ],
       ),
       body: ChangeNotifierProvider<GeolocationService>(create: (context) {
-        geoService.getPositionPeriodic(seconds: 2);
+        geoService.getPositionPeriodic();
         return geoService;
       }, child: Builder(builder: (context) {
         final local = context.watch<GeolocationService>();
@@ -82,7 +82,7 @@ class HomeState extends State<Home> {
         if (local.lat != 0 && local.long != 0) {
           // Escreve a mensagem no app
           message = local.error == ''
-              ? 'Latitude: ${local.lat}\nLongitude: ${local.long} \nBatida: ${collision}'
+              ? 'Latitude: ${local.lat}\nLongitude: ${local.long} \nBatida: $collision'
               : local.error;
 
           // Envia informações para o broker
