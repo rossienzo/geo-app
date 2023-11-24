@@ -94,12 +94,25 @@ class HomeState extends State<Home> {
           }
         }
 
-        return Center(
-            child: Text(message,
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.indigo,
-                )));
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(mqttService.clientId,
+                    style: const TextStyle(
+                      fontSize: 15.0,
+                      color: Colors.blueGrey,
+                    ))),
+            Align(
+                alignment: Alignment.center,
+                child: Text(message,
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.indigo,
+                    ))),
+          ],
+        );
       })),
     );
   }

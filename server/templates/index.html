@@ -4,94 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geolocalização</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
+
+    <!-- boostrap -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.6.0/dist/css/bootstrap.min.css">
 
 </head>
 <body>
-    <h1>Geolocalização</h1>
-    
-    <p>Latitude: <span id="latitude"></span></p>
-    <p>Longitude: <span id="longitude"></span></p>
-    <button onclick="iniciarAtualizacao()">Iniciar Atualização</button>
-    <button onclick="iniciarAtualizacao(false)">Parar Atualização</button>
-    <br>
-    <div id="map" style="height: 400px;"></div>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #6c757d;
+            text-transform: uppercase;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: #62686d;
+            text-transform: uppercase;
+            font-size: 1.5em;
+        }
+
+        button {
+            margin-top: 20px;
+        }
+
+        .row {
+            margin-bottom: 20px;
+        }
+
+        .btn-custom {
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <div class="container">
+        
+        <h1 class="text-center my-4">Geolocalização</h1>
+        
+        <div>
+            <h2 class="my-2">Clientes</h2>
+            <ul class="list-group">
+                {% if client_ids is not none %}
+                    {% for client_id in client_ids %}
+                    <li class="list-group-item"><a href="{{ url_for('client_page', client_id=client_id) }}">{{ client_id }}</a></li>
+                    {% endfor %}
+                {% else %}
+                    <p>Nenhum cliente cadastrado</p>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </body>
-
-<script>
-    let intervalId;
-    let map;
-    let markerGroup = L.layerGroup();
-
-    function buscarLocalizacao() {
-        // Substitua a URL abaixo pela URL da API que você está usando para geocodificação
-        let apiUrl = `/location`;
-
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                if (data && data.latitude && data.longitude) {
-                    lat = data.latitude
-                    long = data.longitude
-                    document.getElementById("latitude").innerText = lat;
-                    document.getElementById("longitude").innerText = long;
-                    updateMap(lat, long);
-                }
-            })
-            .catch(error => {
-                console.error('Erro na solicitação da API:', error);
-            });
-    }
-
-    function iniciarAtualizacao(startTimer = true) {
-        if(startTimer)
-        {
-            buscarLocalizacao(); 
-            intervalId = setInterval(buscarLocalizacao, 1000);
-        }
-        else
-            clearInterval(intervalId);
-    }
-
-    /*
-    function updateMap(latitude, longitude) {
-        if (!map) {
-            // Cria o mapa se ainda não existir
-            map = L.map('map').setView([latitude, longitude], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        }
-
-        // Remove o marcador existente (se houver)
-        if (map.hasLayer(marker)) {
-            map.removeLayer(marker);
-        }
-
-        // Adiciona um marcador para a nova localização
-        var marker = L.marker([latitude, longitude]).addTo(map);
-    }
-    */
-
-    function updateMap(latitude, longitude) {
-        if (!map) {
-            // Cria o mapa se ainda não existir
-            map = L.map('map').setView([latitude, longitude], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        }
-
-        // Remove todas as camadas do grupo de camadas
-        markerGroup.clearLayers();
-
-        // Adiciona um marcador para a nova localização
-        var marker = L.marker([latitude, longitude]);
-        markerGroup.addLayer(marker);
-        markerGroup.addTo(map);
-    }
-</script>
 
 </html>
