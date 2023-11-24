@@ -11,7 +11,7 @@ void main() async {
   mqttService = MqttService();
   await mqttService.connect();
 
-  runApp(GeoApp());
+  runApp(const GeoApp());
 }
 
 class GeoApp extends StatelessWidget {
@@ -19,7 +19,7 @@ class GeoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Home(),
+        home: const Home(),
         theme: ThemeData(
           primarySwatch: Colors.amber,
           visualDensity: VisualDensity.adaptivePlatformDensity,
