@@ -11,7 +11,7 @@ class AccelerometerService {
   double previousTotalAcceleration = 0.0;
 
   // Configuração da sensibilidade da detecção de acidente
-  double threshold = 15.0;
+  double threshold = 14.0;
 
   AccelerometerService() {
     start();
@@ -56,5 +56,9 @@ class AccelerometerService {
     double simulatedZ = Random().nextDouble() * 20 - 10;
 
     return detectCollision(simulatedX, simulatedY, simulatedZ);
+  }
+
+  bool collision() {
+    return detectCollision(30, 30, 30);
   }
 }
