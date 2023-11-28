@@ -4,10 +4,11 @@ import 'package:geo_app/services/mqtt_service.dart';
 import 'package:geolocator/geolocator.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final MqttService mqttService;
 
-  WidgetsFlutterBinding.ensureInitialized();
   await Geolocator.requestPermission();
+
   mqttService = MqttService();
   await mqttService.connect();
 

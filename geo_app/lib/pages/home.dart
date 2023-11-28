@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -32,8 +33,8 @@ class HomeState extends State<Home> {
   }
 
   HomeState() {
-    /*
     // Inicia a simulação de batida a cada 5 segundos
+    /* 
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (accService.simulateCollision()) {
         collision = true;
@@ -95,8 +96,25 @@ class HomeState extends State<Home> {
         }
 
         return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(50.0),
+              child: TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.yellowAccent),
+                ),
+                onPressed: () {
+                  if (accService.collision()) {
+                    collision = true;
+                    sendData('topic/accident', qos: 2);
+                  }
+                },
+                child: const Text('Simular batida'),
+              ),
+            ),
             Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(mqttService.clientId,

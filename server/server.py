@@ -3,7 +3,7 @@ from flask_mqtt import Mqtt
 import json
 
 app = Flask(__name__)
-app.config['MQTT_BROKER_URL'] = 'localhost' # public broker: mqtt.eclipseprojects.io
+app.config['MQTT_BROKER_URL'] = 'mqtt.eclipseprojects.io' # public broker: mqtt.eclipseprojects.io
 app.config['MQTT_BROKER_PORT'] = 1883
 app.config['MQTT_KEEPALIVE'] = 60
 app.config['MQTT_TLS_ENABLED'] = False
@@ -34,7 +34,7 @@ def handle_disconnect(client, userdata, rc):
    global location_data
    client_id = userdata['client_id']
    if client_id in location_data:
-       del location_data[client_id]
+      del location_data[client_id]
 
 
 # HTTP
