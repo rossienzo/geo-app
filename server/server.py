@@ -14,9 +14,9 @@ location_data = {}
 # MQTT
 @mqtt.on_connect()
 def handle_connect(client, userdata, flags, rc):
-   print("Connected with result code "+str(rc))
    mqtt.subscribe("topic/location")
    mqtt.subscribe("topic/accident")
+   print(f"Conectado com sucesso! Código: {rc}")
 
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
@@ -31,6 +31,7 @@ def handle_mqtt_message(client, userdata, message):
 
 @mqtt.on_disconnect()
 def handle_disconnect(client, userdata, rc):
+   print("aqui")
    global location_data
    client_id = userdata['client_id']
    if client_id in location_data:

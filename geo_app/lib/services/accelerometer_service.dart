@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:geo_app/helpers/toaster.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 class AccelerometerService {
@@ -40,6 +41,7 @@ class AccelerometerService {
 
     // Verifica se houve uma mudança brusca na aceleração total
     if ((totalAcceleration - previousTotalAcceleration).abs() > threshold) {
+      Toaster.showToast('Batida detectada!');
       print("Batida detectada!");
       return true;
     }

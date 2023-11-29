@@ -3,8 +3,10 @@
 ## Executando o projeto
 
 __Flutter (/geo_app)__ 
-- Primeiro execute `flutter pub get` para instalar as dependências do flutter. 
+- Primeiro verifique se todas as dependências para executar o flutter estão instaladas: `flutter doctor`
+- Execute `flutter pub get` para instalar as dependências do projeto. 
 - Inicie o emulador e execute 'Run without debugging'.
+- Para gerar o apk (build):  `flutter build apk` 
 
 __Python (/server)__
 - Crie um ambiente virtual e instale as dependências `pip install -r requirements.txt`.

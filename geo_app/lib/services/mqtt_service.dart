@@ -1,11 +1,13 @@
+import 'package:geo_app/helpers/toaster.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:uuid/uuid.dart';
 
 // public broker: mqtt.eclipseprojects.io
+// localhost: 10.0.2.2
 
 class MqttService {
-  String serverURI = '10.0.2.2'; // localhost
+  String serverURI = 'mqtt.eclipseprojects.io';
 
   late String clientId;
   late MqttServerClient client;
@@ -73,10 +75,12 @@ class MqttService {
   }
 
   void onConnected() {
+    Toaster.showToast('Cliente conectado com sucesso.');
     print('Connected to MQTT broker.');
   }
 
   void onDisconnected() {
+    Toaster.showToast('Cliente desconectado.');
     print('Disconnected from MQTT broker.');
   }
 }
