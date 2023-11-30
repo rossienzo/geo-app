@@ -83,6 +83,20 @@
 </body>
 
 <script>
+
+    // Create WebSocket connection.
+    const socket = new WebSocket("ws://localhost:5000/location/{{ client_id }}");
+
+    // Connection opened
+    socket.addEventListener("open", (event) => {
+        socket.send("Hello Server!");
+    });
+
+    // Listen for messages
+    socket.addEventListener("message", (event) => {
+        console.log("Message from server ", event.data);
+    });
+
     document.addEventListener('DOMContentLoaded', (event) => {
         initGetLocation();
    });
@@ -95,6 +109,7 @@
     let map;
     let markerGroup = L.layerGroup();
 
+    /*
     function getLocation() {
         let apiUrl = `/location/{{ client_id }}`;
 
@@ -114,6 +129,7 @@
                 console.error('Erro na solicitação da API:', error);
             });
     }
+    */
 
     // Inicia ou para a atualização da localização
     function initGetLocation() {

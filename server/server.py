@@ -1,60 +1,49 @@
 from flask import Flask, jsonify, render_template
-from flask_mqtt import Mqtt
-import json
+from src.services.mqttService import MQTTService
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+app.template_folder = './src/templates'
 app.config['MQTT_BROKER_URL'] = 'mqtt.eclipseprojects.io' # public broker: mqtt.eclipseprojects.io
 app.config['MQTT_BROKER_PORT'] = 1883
 app.config['MQTT_KEEPALIVE'] = 60
 app.config['MQTT_TLS_ENABLED'] = False
+app.config["SECRET_KEY"] = "!@#$%^&*()_+"
 
-mqtt = Mqtt(app)
-location_data = {}
+mqtt = MQTTService(app)
+io = SocketIO(app)
 
 # MQTT
-@mqtt.on_connect()
+@mqtt.mqtt.on_connect()
 def handle_connect(client, userdata, flags, rc):
-   mqtt.subscribe("topic/location")
-   mqtt.subscribe("topic/accident")
-   print(f"Conectado com sucesso! Código: {rc}")
+   mqtt.on_connect(client, userdata, flags, rc)
 
-@mqtt.on_message()
+@mqtt.mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
-   global location_data
-   data = json.loads(message.payload.decode('utf-8'))
+   mqtt.on_message(client, userdata, message)
 
-   client_id = data['client_id']
-   latitude = data['message']['position']['latitude']
-   longitude = data['message']['position']['longitude']
-   location_data[client_id] = {'latitude': latitude, 'longitude': longitude}
-   #print(f"Tópico: {message.topic} | Mensagem: {data}")
-
-@mqtt.on_disconnect()
+@mqtt.mqtt.on_disconnect()
 def handle_disconnect(client, userdata, rc):
-   print("aqui")
-   global location_data
-   client_id = userdata['client_id']
-   if client_id in location_data:
-      del location_data[client_id]
+   mqtt.on_disconnect(client, userdata, rc)
 
 
 # HTTP
 @app.route('/location/<client_id>')
 def location(client_id):
-  if client_id in location_data:
-      return jsonify(location_data[client_id])
-  else:
+   print('client_id', client_id)
+   if client_id in mqtt.location_data:
+      return jsonify(mqtt.location_data[client_id])
+   else:
       return jsonify({'error': 'client_id not found'}), 404
   
 @app.route('/')
 def home():
-   client_ids = list(location_data.keys())
+   client_ids = list(mqtt.location_data.keys())
    return render_template('index.html', client_ids=client_ids)
-
 
 @app.route('/client/<client_id>')
 def client_page(client_id):
    return render_template('client.html', client_id=client_id)
 
 if __name__ == '__main__':
-   app.run(host='127.0.0.1', port=5000)
+   io.run(app, port=5000)

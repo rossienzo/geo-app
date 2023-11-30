@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:geo_app/helpers/toaster.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -7,16 +9,16 @@ import 'package:uuid/uuid.dart';
 // localhost: 10.0.2.2
 
 class MqttService {
-  String serverURI = 'mqtt.eclipseprojects.io';
+  String serverURI = '10.0.2.2';
 
   late String clientId;
   late MqttServerClient client;
 
   MqttService();
 
-  Future<MqttConnectionState> connect() async {
+  Future<MqttConnectionState> connect(String clientId) async {
     try {
-      clientId = const Uuid().v1();
+      this.clientId = clientId;
       client = MqttServerClient(serverURI, clientId);
       client.port = 1883;
       client.keepAlivePeriod = 60;
@@ -37,7 +39,8 @@ class MqttService {
     return client.connectionStatus!.state;
   }
 
-  void disconnect() {
+  void disconnect() async {
+    await disconnectionMessage();
     client.disconnect();
   }
 
@@ -82,5 +85,9 @@ class MqttService {
   void onDisconnected() {
     Toaster.showToast('Cliente desconectado.');
     print('Disconnected from MQTT broker.');
+  }
+
+  Future<void> disconnectionMessage() async {
+    publishMessage("topic/disconnection", jsonEncode(clientId), qos: 2);
   }
 }
