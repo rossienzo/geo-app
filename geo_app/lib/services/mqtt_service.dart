@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 // localhost: 10.0.2.2
 
 class MqttService {
-  String serverURI = '10.0.2.2';
+  String serverURI = 'mqtt.eclipseprojects.io';
 
   late String clientId;
   late MqttServerClient client;

@@ -13,4 +13,4 @@ __Python (/server)__
 - execute em diferentes terminais os arquivos /mosquitto.
 - execute o servidor flask `flask --app server run`. 
 
-> O servidor será executado em: http://127.0.0.1:5000
+> O servidor será executado em: http://127.0.0.1:3000

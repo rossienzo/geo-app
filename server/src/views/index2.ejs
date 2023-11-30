@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notificações em Tempo Real</title>
+</head>
+<body>
+    <h1>Notificações em Tempo Real</h1>
+    <ul id="notifications"></ul>
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+
+        socket.onmessage = (e) => {
+            const notifications = document.getElementById('notifications');
+            const listItem = document.createElement('li');
+            listItem.textContent = e.data;
+            notifications.appendChild(listItem);
+        };
+
+    </script>
+</body>
+</html>
