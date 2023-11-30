@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geo_app/helpers/user_preferences.dart';
 import 'package:geo_app/pages/configuration.dart';
 import 'package:geo_app/services/geolocation_service.dart';
 import 'package:geo_app/services/accelerometer_service.dart';
@@ -27,7 +28,7 @@ class HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    mqttService.connect();
+    mqttService.connect(UserPreferences.userId);
     geoService = GeolocationService();
     accService = AccelerometerService();
   }

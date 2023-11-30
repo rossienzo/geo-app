@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geo_app/helpers/user_preferences.dart';
 import 'package:geo_app/pages/home.dart';
 import 'package:geo_app/services/mqtt_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,8 +10,10 @@ void main() async {
 
   await Geolocator.requestPermission();
 
+  await UserPreferences.init();
+
   mqttService = MqttService();
-  await mqttService.connect();
+  await mqttService.connect(UserPreferences.userId);
 
   runApp(const GeoApp());
 }

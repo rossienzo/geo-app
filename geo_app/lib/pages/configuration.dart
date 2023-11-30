@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geo_app/helpers/user_preferences.dart';
 import 'package:geo_app/services/geolocation_service.dart';
 import 'package:geo_app/services/mqtt_service.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -143,7 +144,8 @@ class ConfigurationState extends State<Configuration> {
                         if (widget.mqttService.serverURI != inputHost.text) {
                           widget.mqttService.serverURI = inputHost.text;
                         }
-                        await widget.mqttService.connect();
+                        await widget.mqttService
+                            .connect(UserPreferences.userId);
                         widget.geoService.getPositionPeriodic();
                       }
                       // Atualiza o dialog
