@@ -30,18 +30,19 @@ export class MQTTService {
 		
 		// Envia a informação de acidente via websocket
 		if (topic === "topic/accident") {
+			//const message = {"type": "accident", "message": {"client_id": data.client_id, "position": data.message.position }};
 			this.wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN) {
-					client.send(data.client_id);
+					client.send(this.prepareWebSocketMessage("accident", data));
 				}
 			});
 		}
-		console.log(data);
+
+		console.log(`topic: ${topic}`, data);
 
 		// Detecta se o cliente se desconectou inesperadamente
 		if(data.message === "client disconnected")  {
-			const clientId = data.client_id;
-			this.removeClient(clientId);
+			this.removeClient(data);
 			return;
 		}
 		
@@ -55,7 +56,7 @@ export class MQTTService {
 			// Envia a informação de conexão via websocket
 			this.wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN) {
-					client.send(data.client_id);
+					client.send(this.prepareWebSocketMessage("connection", data));
 				}
 			});
 		}
@@ -69,15 +70,16 @@ export class MQTTService {
 		const clientId = this.mqttClient.options.clientId;
 		this.removeClient(clientId!);
 	}
-
-	private removeClient(clientId: string) {
+	
+	private removeClient(data: any) {
+		const clientId = data.client_id;
 		if (clientId && this.locationData[clientId]) {
 			delete this.locationData[clientId];
 
 			// Envia a informação de desconexão via websocket
 			this.wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN) {
-					client.send(clientId);
+					client.send(this.prepareWebSocketMessage("disconnection", data));
 				}
 			});
 		}
@@ -89,6 +91,16 @@ export class MQTTService {
 	
 	public getClient(): mqtt.MqttClient { 
 		return this.mqttClient;
+	}
+
+	prepareWebSocketMessage(type: string, data: any) {
+		return JSON.stringify({
+			"type": type, 
+			"message": {
+				"client_id": data.client_id, 
+				"position": data.message.position 
+			}
+		});
 	}
 }
   

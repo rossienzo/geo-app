@@ -1,0 +1,18 @@
+<div id="accident-alert" class="alert alert-danger" role="alert">
+</div>
+
+<!-- Detecta se veio alguma informação do tópico de acidente -->
+<script> 
+    const socket = new WebSocket('ws://localhost:3001');
+    socket.onmessage = (e) => {
+        const url = window.location.pathname;
+        const alert = document.getElementById('accident-alert');
+        alert.style.display = 'block';
+
+        if(window.location.pathname !== `/client/${e.data}`)
+            alert.innerHTML = `Um acidente foi detectado na localização com o cliente:
+            <a href='http://localhost:3000/client/${e.data}' target='_blank'>${e.data}</a>`;
+        else
+            alert.innerHTML = `Este cliente sofreu um acidente!`;
+    };
+</script>
