@@ -41,14 +41,36 @@ export class MQTTService {
 		const latitude = data.message.position.latitude;
 		const longitude = data.message.position.longitude;
 		console.log(data);
-		this.locationData[clientId] = { latitude, longitude };
+
+		if(this.locationData[clientId] === undefined) {
+			this.locationData[clientId] = { latitude, longitude };
+
+			// Envia a informação de conexão via websocket
+			this.wss.clients.forEach((client) => {
+				if (client.readyState === WebSocket.OPEN) {
+					client.send(data.client_id);
+				}
+			});
+		}
+		else
+			this.locationData[clientId] = { latitude, longitude };
+			
 	}
   
 	private onDisconnect() {
 		console.log("Desconectado inesperadamente.");
 		const clientId = this.mqttClient.options.clientId;
-		if (clientId && this.locationData[clientId]) 
+		if (clientId && this.locationData[clientId]) {
 			delete this.locationData[clientId];
+
+			// Envia a informação de desconexão via websocket
+			this.wss.clients.forEach((client) => {
+				if (client.readyState === WebSocket.OPEN) {
+					client.send(clientId);
+				}
+			});
+		}
+			
 	}
 
 	public getLocationData(): Record<string, { latitude: number; longitude: number }> {
