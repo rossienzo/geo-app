@@ -5,14 +5,52 @@
 <script> 
     const socket = new WebSocket('ws://localhost:3001');
     socket.onmessage = (e) => {
-        const url = window.location.pathname;
-        const alert = document.getElementById('accident-alert');
-        alert.style.display = 'block';
+        const data = JSON.parse(e.data);
 
-        if(window.location.pathname !== `/client/${e.data}`)
-            alert.innerHTML = `Um acidente foi detectado na localização com o cliente:
-            <a href='http://localhost:3000/client/${e.data}' target='_blank'>${e.data}</a>`;
-        else
-            alert.innerHTML = `Este cliente sofreu um acidente!`;
-    };
+        // Verifica se o tipo de mensagem é de acidente
+        if(data.type === "accident") {
+            const url = window.location.pathname;
+            const alert = document.getElementById('accident-alert');
+            alert.style.display = 'block';
+
+            if(window.location.pathname !== `/client/${data.message.client_id}`)
+                alert.innerHTML = `Um acidente foi detectado na localização com o cliente:
+                <a href='http://localhost:3000/client/${data.message.client_id}' target='_blank'>${data.message.client_id}</a>`;
+            else
+                alert.innerHTML = `Este cliente sofreu um acidente!`;
+        }
+
+        // Verifica se o tipo de mensagem é uma desconexão ou conexão
+        else if(data.type === "disconnection" || data.type === "connection") {
+            // Verifica se o 'li' existe com base o cliente contido no texto 'a'
+            const liExistente = Array.from(clientsList.getElementsByTagName('li')).find(li => {
+                const a = li.getElementsByTagName('a')[0];
+                return a && a.textContent === data.message.client_id;
+            });
+
+            if(liExistente) {
+                const aText = liExistente.getElementsByTagName('a')[0];
+                if(data.type === "disconnection") {
+                    aText.classList.add('text-warning');
+                    aText.classList.remove('text-primary');
+                }
+                else {
+                    aText.classList.add('text-primary');
+                    aText.classList.remove('text-warning');
+                }
+                   
+            } else {
+                const clientsList = document.getElementById('clientsList');
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+
+                const a = document.createElement('a');
+                a.setAttribute('href', `/client/${data.message.client_id}`);
+                a.textContent = data.message.client_id;
+
+                li.appendChild(a);
+                clientsList.appendChild(li);
+            }
+        } 
+    }
 </script>

@@ -27,54 +27,40 @@
     </div>
 </body>
 
+<!--  
 <script>
     socket.onmessage = (e) => {
         /*-- Adicione o novo cliente na lista --*/
-        
-        // Verifica se o 'li' existe com base o cliente contido no texto 'a'
-        const liExistente = Array.from(clientsList.getElementsByTagName('li')).find(li => {
-            const a = li.getElementsByTagName('a')[0];
-            return a && a.textContent === e.data;
-        });
+        const data = JSON.parse(e.data);
 
-        if(liExistente) {
-            clientsList.removeChild(liExistente);
-        } else {
-            const clientsList = document.getElementById('clientsList');
-            const li = document.createElement('li');
-            li.classList.add('list-group-item');
+        if(data.type === "disconnected")
+        {
+            // Verifica se o 'li' existe com base o cliente contido no texto 'a'
+            const liExistente = Array.from(clientsList.getElementsByTagName('li')).find(li => {
+                const a = li.getElementsByTagName('a')[0];
+                return a && a.textContent === data.message.client_id;
+            });
 
-            const a = document.createElement('a');
-            a.setAttribute('href', `/client/${e.data}`);
-            a.textContent = e.data;
+            if(liExistente) {
+                clientsList.removeChild(liExistente);
+            } else {
+                const clientsList = document.getElementById('clientsList');
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
 
-            li.appendChild(a);
-            clientsList.appendChild(li);
+                const a = document.createElement('a');
+                a.setAttribute('href', `/client/${data.message.client_id}`);
+                a.textContent = data.message.client_id;
+
+                li.appendChild(a);
+                clientsList.appendChild(li);
+            }
         }
 
         /*-- Fim - adicione o novo cliente na lista --*/
 
-        
-
     };
-    
-    /*
-    // Função para remover um 'li' com base no texto do 'a'
-    function removerItemPorCliente(texto) {
-        const lis = clientsList.getElementsByTagName('li');
 
-        for (let i = 0; i < lis.length; i++) {
-            const a = lis[i].getElementsByTagName('a')[0];
-            
-            // Remove o 'li' encontrado
-
-            if (a && a.textContent === texto) {
-                clientsList.removeChild(lis[i]);
-                break; 
-            }
-        }
-    }
-    */
 </script>
-
+-->
 </html>
