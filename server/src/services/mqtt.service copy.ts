@@ -12,7 +12,7 @@ export class MQTTService {
   
 		this.mqttClient.on("connect", this.onConnect.bind(this));
 		this.mqttClient.on("message", this.onMessage.bind(this));
-		this.mqttClient.on("offline", this.onDisconnect.bind(this));
+		this.mqttClient.on("close", this.onDisconnect.bind(this));
   
 		this.mqttClient.subscribe("topic/location");
 		this.mqttClient.subscribe("topic/accident");
@@ -36,18 +36,13 @@ export class MQTTService {
 				}
 			});
 		}
-		console.log(data);
 
-		// Detecta se o cliente se desconectou inesperadamente
-		if(data.message === "client disconnected")  {
-			const clientId = data.client_id;
-			this.removeClient(clientId);
-			return;
-		}
-		
 		const clientId = data.client_id;
 		const latitude = data.message.position.latitude;
 		const longitude = data.message.position.longitude;
+		console.log(data);
+
+		
 
 		if(this.locationData[clientId] === undefined) {
 			this.locationData[clientId] = { latitude, longitude };
@@ -63,14 +58,10 @@ export class MQTTService {
 			this.locationData[clientId] = { latitude, longitude };
 			
 	}
-
+  
 	private onDisconnect() {
 		console.log("Desconectado inesperadamente.");
 		const clientId = this.mqttClient.options.clientId;
-		this.removeClient(clientId!);
-	}
-
-	private removeClient(clientId: string) {
 		if (clientId && this.locationData[clientId]) {
 			delete this.locationData[clientId];
 
@@ -81,6 +72,7 @@ export class MQTTService {
 				}
 			});
 		}
+			
 	}
 
 	public getLocationData(): Record<string, { latitude: number; longitude: number }> {
