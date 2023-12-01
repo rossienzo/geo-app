@@ -1,0 +1,30 @@
+<%- include('head') -%>
+
+<body>
+    <style>
+        
+    </style>
+
+    <div class="container">
+        
+        <h1 class="text-center my-4">Geolocalização</h1>
+        
+        <div>
+            <%- include('accident-alert') -%>
+            
+            <h2 class="my-2">Clientes</h2>
+
+            <ul class="list-group">
+                <% if (client_ids != null) { %>
+                    <% for (let client_id in client_ids) { %>
+                        <li class="list-group-item"><a href="/client/<%= client_id %>"><%= client_id%></a></li>
+                    <% } %>
+                <% } else { %>
+                    <p>Nenhum cliente cadastrado</p>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>

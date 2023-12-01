@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'package:geo_app/helpers/toaster.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:uuid/uuid.dart';
 
 // public broker: mqtt.eclipseprojects.io
 // localhost: 10.0.2.2
 
 class MqttService {
-  String serverURI = '10.0.2.2';
+  String serverURI = 'mqtt.eclipseprojects.io';
 
   late String clientId;
   late MqttServerClient client;
