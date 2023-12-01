@@ -8,9 +8,8 @@ __Flutter (/geo_app)__
 - Inicie o emulador e execute 'Run without debugging'.
 - Para gerar o apk (build):  `flutter build apk` 
 
-__Python (/server)__
-- Crie um ambiente virtual e instale as dependências `pip install -r requirements.txt`.
-- execute em diferentes terminais os arquivos /mosquitto.
-- execute o servidor flask `flask --app server run`. 
-
+__Typescript/EJS (/server)__
+- Instale as dependências `npm i`.
+- execute em diferentes terminais os arquivos /mosquitto. (caso não utilize o broker público)
+- Execute a aplicação `npm run dev`.
 > O servidor será executado em: http://127.0.0.1:3000

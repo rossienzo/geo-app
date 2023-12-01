@@ -1,43 +1,25 @@
 <%- include('head') -%>
 
 <body>
-<div class="container">
-    <h1 class="text-center my-4">Geolocalização</h1>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <p class="font-weight-bold">Latitude: <span id="latitude"></span></p>
+    <div class="container-fluid">
+        <h1 class="text-center my-4">Geolocalização</h1>
+
+        <%- include('accident-alert') -%>
+        
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <p class="font-weight-bold">Latitude: <span id="latitude"></span></p>
+            </div>
+            <div class="col-md-6 text-center">
+                <p class="font-weight-bold">Longitude: <span id="longitude"></span></p>
+            </div>
         </div>
-        <div class="col-md-6">
-            <p class="font-weight-bold">Longitude: <span id="longitude"></span></p>
-        </div>
+        <br>
+        <div id="map" class="mb-4" style="height: 600px;"></div>
     </div>
-    <!-- <button class="btn-custom btn-active" onclick="toggleButton()">Parar Atualização</button> -->
-    <br>
-    <div id="map" style="height: 400px;"></div>
-</div>
 </body>
 
 <script>
-    /*
-    // Create WebSocket connection.
-    const socket = new WebSocket("ws://localhost:5000/location/{{ client_id }}");
-
-    // Connection opened
-    socket.addEventListener("open", (event) => {
-        socket.send("Hello Server!");
-    });
-
-    // Listen for messages
-    socket.addEventListener("message", (event) => {
-        console.log("Message from server ", event.data);
-    });
-
-    document.addEventListener('DOMContentLoaded', (event) => {
-        initGetLocation();
-   });
-   */
-
    document.addEventListener('DOMContentLoaded', (event) => {
         initGetLocation();
    });
@@ -82,21 +64,6 @@
         }
     }
 
-    // Alterna o botão entre ativo e inativo
-    function toggleButton() {
-        var button = document.querySelector('.btn-custom');
-        button.classList.toggle('btn-active');
-        button.classList.toggle('btn-inactive');
-        
-        if(button.classList.contains('btn-active')) {
-            button.innerText = 'Parar Atualização';
-            initGetLocation();
-        } else {
-            button.innerText = 'Iniciar Atualização';
-            initGetLocation();
-        }
-    }
-
     function updateMap(latitude, longitude) {
         // Cria o mapa se ainda não existir
         if (!map) {
@@ -108,9 +75,29 @@
         markerGroup.clearLayers();
 
         // Adiciona um marcador para a nova localização
-        var marker = L.marker([latitude, longitude]);
+        let marker = L.marker([latitude, longitude]);
         markerGroup.addLayer(marker);
+
+        // Adiciona um círculo ao redor do marcador
+        let circle = L.circle([-22.8836683, -42.025295], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 500 // Raio do círculo em metros
+        });
+
+        // Adiciona o marcador e o círculo ao grupo de camadas
+        markerGroup.addLayer(circle);
+
         markerGroup.addTo(map);
+
+        // Adiciona um evento de clique ao mapa para obter coordenadas
+    map.on('click', function (e) {
+        let clickedLatLng = e.latlng;
+        document.getElementById("latitude").innerText = clickedLatLng.lat;
+        document.getElementById("longitude").innerText = clickedLatLng.lng;
+    });
+
     }
 </script>
 

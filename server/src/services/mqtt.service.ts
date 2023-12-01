@@ -1,10 +1,13 @@
 import mqtt from "mqtt";
+import * as WebSocket from "ws";
+
 
 export class MQTTService {
+	private wss: WebSocket.Server;
 	private mqttClient: mqtt.MqttClient;
 	private locationData: Record<string, { latitude: number; longitude: number }> = {};
   
-	constructor() {
+	constructor(wss: WebSocket.Server) {
 		this.mqttClient = mqtt.connect("mqtt://mqtt.eclipseprojects.io"); 
   
 		this.mqttClient.on("connect", this.onConnect.bind(this));
@@ -14,6 +17,8 @@ export class MQTTService {
 		this.mqttClient.subscribe("topic/location");
 		this.mqttClient.subscribe("topic/accident");
 		this.mqttClient.subscribe("topic/disconnection");
+
+		this.wss = wss;
 	}
   
 	private onConnect() {
@@ -22,7 +27,16 @@ export class MQTTService {
   
 	private onMessage(topic: string, message: Buffer) {
 		const data = JSON.parse(message.toString());
-  
+		
+		// Envia a informação de acidente via websocket
+		if (topic === "topic/accident") {
+			this.wss.clients.forEach((client) => {
+				if (client.readyState === WebSocket.OPEN) {
+					client.send(data.client_id);
+				}
+			});
+		}
+
 		const clientId = data.client_id;
 		const latitude = data.message.position.latitude;
 		const longitude = data.message.position.longitude;

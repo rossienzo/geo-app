@@ -47,3 +47,7 @@ button {
 .btn-custom:hover {
     background-color: #0056b3;
 }
+
+#accident-alert {
+    display: none;
+}

@@ -1,9 +1,28 @@
 import { Router, Request, Response } from "express";
 import { MQTTService } from "./services/mqtt.service";
+import * as WebSocket from "ws";
 
 const routes = Router();
 
-const mqttService = new MQTTService();
+const wss = new WebSocket.Server({ port: 3001 }, () => {
+	console.log(`Servidor WebSocket está ouvindo na porta ${3001}`);
+});
+
+// Configuração do servidor WebSocket
+wss.on("connection", (ws) => {
+	console.log("Cliente WebSocket conectado");
+  
+	ws.on("message", (message) => {
+		console.log(`Mensagem recebida do cliente WebSocket: ${message}`);
+
+	});
+  
+	ws.on("close", () => {
+		console.log("Cliente WebSocket desconectado");
+	});
+});
+
+const mqttService = new MQTTService(wss);
 
 
 routes.get("/", (req: Request, res: Response) => {
