@@ -14,7 +14,7 @@
             
             <h2 class="my-2">Clientes</h2>
 
-            <ul class="list-group">
+            <ul id="clientsList" class="list-group">
                 <% if (client_ids != null) { %>
                     <% for (let client_id in client_ids) { %>
                         <li class="list-group-item"><a href="/client/<%= client_id %>"><%= client_id%></a></li>
@@ -26,5 +26,55 @@
         </div>
     </div>
 </body>
+
+<script>
+    socket.onmessage = (e) => {
+        /*-- Adicione o novo cliente na lista --*/
+        
+        // Verifica se o 'li' existe com base o cliente contido no texto 'a'
+        const liExistente = Array.from(clientsList.getElementsByTagName('li')).find(li => {
+            const a = li.getElementsByTagName('a')[0];
+            return a && a.textContent === e.data;
+        });
+
+        if(liExistente) {
+            clientsList.removeChild(liExistente);
+        } else {
+            const clientsList = document.getElementById('clientsList');
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+
+            const a = document.createElement('a');
+            a.setAttribute('href', `/client/${e.data}`);
+            a.textContent = e.data;
+
+            li.appendChild(a);
+            clientsList.appendChild(li);
+        }
+
+        /*-- Fim - adicione o novo cliente na lista --*/
+
+        
+
+    };
+    
+    /*
+    // Função para remover um 'li' com base no texto do 'a'
+    function removerItemPorCliente(texto) {
+        const lis = clientsList.getElementsByTagName('li');
+
+        for (let i = 0; i < lis.length; i++) {
+            const a = lis[i].getElementsByTagName('a')[0];
+            
+            // Remove o 'li' encontrado
+
+            if (a && a.textContent === texto) {
+                clientsList.removeChild(lis[i]);
+                break; 
+            }
+        }
+    }
+    */
+</script>
 
 </html>

@@ -1,5 +1,7 @@
 <div id="accident-alert" class="alert alert-danger" role="alert">
 </div>
+
+<!-- Detecta se veio alguma informação do tópico de acidente -->
 <script> 
     const socket = new WebSocket('ws://localhost:3001');
     socket.onmessage = (e) => {

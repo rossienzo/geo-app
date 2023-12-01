@@ -14,24 +14,64 @@
                 <p class="font-weight-bold">Longitude: <span id="longitude"></span></p>
             </div>
         </div>
+        <div class="row ">
+            <div class="col-md-4 text-center d-flex align-items-center">
+                <button id="drawFencing" class="btn btn-primary" type="submit">Criar cercado</button>
+            </div>
+            <div class="col-md-8 d-flex align-items-center">
+                <p id="drawFencingText" class="font-weight-bold" style="display: none;">Centro do circulo</p>
+            </div>
+        </div>
         <br>
         <div id="map" class="mb-4" style="height: 600px;"></div>
     </div>
 </body>
 
 <script>
-   document.addEventListener('DOMContentLoaded', (event) => {
-        initGetLocation();
-   });
+    // Inicia a atualização da localização do cliente
+    document.addEventListener('DOMContentLoaded', (event) => {
+            getLocation(); 
+            setInterval(getLocation, 1000);
+    });
 
-    // interval
-    let isUpdating = false;
-    let intervalId;
-
-    // map
+    // Leaftlet - map
     let map;
     let markerGroup = L.layerGroup();
 
+    // Criação do cercado
+    let canDrawCircle = false;
+    let fenceCircle = null, centerCircle = null, radiusCircle = null;
+
+    // Botão para criar cercado
+    let drawFencingText = document.getElementById('drawFencingText');
+    let btnDrawFencing = document.getElementById('drawFencing');
+    btnDrawFencing.addEventListener('click', function(e) { 
+        if (fenceCircle === null) {
+            if(canDrawCircle) {
+                document.getElementById('drawFencing').innerText = 'Criar cercado';
+                drawFencingText.style.display = 'none';
+                
+            } else {
+                document.getElementById('drawFencing').innerText = 'Cancelar';
+                drawFencingText.style.display = 'block';
+            }
+            canDrawCircle = !canDrawCircle; 
+
+        }
+        else { // Remove o circulo do mapa
+            map.removeLayer(fenceCircle);
+            fenceCircle = null;
+            centerCircle = null;
+            radiusCircle = null;
+
+            // Altera o botão para criação do círculo
+            e.target.innerText = 'Criar cercado';
+            e.target.classList.remove('btn-danger')
+            e.target.classList.add('btn-primary');
+        }
+    });
+
+    // Obtem a localização do cliente
     function getLocation() {
         let apiUrl = `/location/<%= client_id %>`;
 
@@ -52,18 +92,7 @@
             });
     }
 
-    // Inicia ou para a atualização da localização
-    function initGetLocation() {
-        if(!isUpdating) {
-            getLocation(); 
-            intervalId = setInterval(getLocation, 1000);
-            isUpdating = true;
-        } else {
-            clearInterval(intervalId);
-            isUpdating = false;
-        }
-    }
-
+    // Atualiza o mapa com a nova localização
     function updateMap(latitude, longitude) {
         // Cria o mapa se ainda não existir
         if (!map) {
@@ -78,26 +107,53 @@
         let marker = L.marker([latitude, longitude]);
         markerGroup.addLayer(marker);
 
-        // Adiciona um círculo ao redor do marcador
-        let circle = L.circle([-22.8836683, -42.025295], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: 500 // Raio do círculo em metros
-        });
 
-        // Adiciona o marcador e o círculo ao grupo de camadas
-        markerGroup.addLayer(circle);
+        if(canDrawCircle)
+        {
+            // Adiciona um evento de clique ao mapa para obter coordenadas
+            map.on('click', function (e) {
+                if (centerCircle === null && fenceCircle === null) { // Centro
+                    centerCircle = e.latlng;
+                    drawFencingText.innerText = 'Raio do circulo';
+                } else if (radiusCircle === null && fenceCircle === null) { // Raio
+                    radiusCircle = centerCircle.distanceTo(e.latlng);
+                    fenceCircle = addCircle(centerCircle, radiusCircle);
+
+                    // Reseta o círculo
+                    centerCircle = null;
+                    radiusCircle = null;
+                    canDrawCircle = false;
+                    
+                    // Altera o botão para remoção do círculo
+                    btnDrawFencing.innerText = 'Remover cercado';
+                    btnDrawFencing.classList.remove('btn-primary')
+                    btnDrawFencing.classList.add('btn-danger');
+                    drawFencingText.innerText = 'Centro do circulo';
+                    drawFencingText.style.display = 'none';
+                }
+                else return false;
+            });
+        }
+        else
+        {
+            // Remove o evento de clique do mapa
+            map.off('click');
+        }
 
         markerGroup.addTo(map);
+    }
 
-        // Adiciona um evento de clique ao mapa para obter coordenadas
-    map.on('click', function (e) {
-        let clickedLatLng = e.latlng;
-        document.getElementById("latitude").innerText = clickedLatLng.lat;
-        document.getElementById("longitude").innerText = clickedLatLng.lng;
-    });
-
+    // Adiciona um círculo ao mapa
+    function addCircle(center, radius) {
+        if (center !== null && radius !== null) {
+            return L.circle(center, {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: radius // Raio do círculo em metros
+            }).addTo(map);
+        }
+        return null;
     }
 </script>
 

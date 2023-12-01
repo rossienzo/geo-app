@@ -20,15 +20,27 @@ class MqttService {
       this.clientId = clientId;
       client = MqttServerClient(serverURI, clientId);
       client.port = 1883;
-      client.keepAlivePeriod = 60;
+      client.keepAlivePeriod = 20;
       client.onConnected = onConnected;
       client.onDisconnected = onDisconnected;
+
+      // Set Last Will and Testament
+      final connMessage = MqttConnectMessage()
+          .withClientIdentifier(clientId)
+          .startClean()
+          .withWillTopic('topic/disconnection')
+          .withWillMessage(jsonEncode(
+              {'client_id': clientId, 'message': 'client disconnected'}))
+          .withWillQos(MqttQos.atLeastOnce);
+
+      client.connectionMessage = connMessage;
 
       await client.connect();
     } catch (e) {
       print('Exception: $e');
       client.disconnect();
     }
+
     if (client.connectionStatus?.state == MqttConnectionState.connected) {
       print('Client connected successfully');
     } else {
@@ -41,6 +53,13 @@ class MqttService {
   void disconnect() async {
     await disconnectionMessage();
     client.disconnect();
+  }
+
+  Future<void> subscribeToTopic(String topic) async {
+    if (client.connectionStatus?.state == MqttConnectionState.connected) {
+      client.subscribe(topic, MqttQos.atMostOnce);
+      print('Subscribed to topic: $topic');
+    }
   }
 
   void publishMessage(String topic, String message, {int qos = 1}) {
