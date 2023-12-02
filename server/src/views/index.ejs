@@ -26,41 +26,4 @@
         </div>
     </div>
 </body>
-
-<!--  
-<script>
-    socket.onmessage = (e) => {
-        /*-- Adicione o novo cliente na lista --*/
-        const data = JSON.parse(e.data);
-
-        if(data.type === "disconnected")
-        {
-            // Verifica se o 'li' existe com base o cliente contido no texto 'a'
-            const liExistente = Array.from(clientsList.getElementsByTagName('li')).find(li => {
-                const a = li.getElementsByTagName('a')[0];
-                return a && a.textContent === data.message.client_id;
-            });
-
-            if(liExistente) {
-                clientsList.removeChild(liExistente);
-            } else {
-                const clientsList = document.getElementById('clientsList');
-                const li = document.createElement('li');
-                li.classList.add('list-group-item');
-
-                const a = document.createElement('a');
-                a.setAttribute('href', `/client/${data.message.client_id}`);
-                a.textContent = data.message.client_id;
-
-                li.appendChild(a);
-                clientsList.appendChild(li);
-            }
-        }
-
-        /*-- Fim - adicione o novo cliente na lista --*/
-
-    };
-
-</script>
--->
 </html>
