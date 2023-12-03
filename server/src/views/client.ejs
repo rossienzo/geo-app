@@ -79,9 +79,9 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data)
-                if (data && data.latitude && data.longitude) {
-                    lat = data.latitude
-                    long = data.longitude
+                if (data && data.currentLocation) {
+                    lat = data.currentLocation.latitude
+                    long = data.currentLocation.longitude
                     document.getElementById("latitude").innerText = lat;
                     document.getElementById("longitude").innerText = long;
                     updateMap(lat, long);
@@ -94,6 +94,8 @@
 
     // Atualiza o mapa com a nova localização
     function updateMap(latitude, longitude) {
+
+        if (latitude === 0 || longitude === 0) return false;
         // Cria o mapa se ainda não existir
         if (!map) {
             map = L.map('map').setView([latitude, longitude], 13);
