@@ -1,0 +1,10 @@
+{
+    "clients": [
+      {
+        "id": "337214c0-7fb1-1dcf-87ac-cd65780e394d",
+        "fence": { "location": {"latitude": 37.4226711, "longitude": -122.0849872}, "radius": 0 },
+        "accident": null,
+        "currentLocation": { "latitude": 37.4226711, "longitude": -122.0849872 }
+      }
+    ]
+}

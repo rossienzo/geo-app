@@ -1,13 +1,14 @@
 import mqtt from "mqtt";
 import * as WebSocket from "ws";
+import { ClientDTO } from "../model/client";
 
 
 export class MQTTService {
 	private wss: WebSocket.Server;
 	private mqttClient: mqtt.MqttClient;
-	private locationData: Record<string, { latitude: number; longitude: number }> = {};
+	private locationData: Record<string, ClientDTO> = {};
   
-	constructor(wss: WebSocket.Server) {
+	constructor(wss: WebSocket.Server, loadClients?: ClientDTO[]) {
 		this.mqttClient = mqtt.connect("mqtt://mqtt.eclipseprojects.io"); 
   
 		this.mqttClient.on("connect", this.onConnect.bind(this));
@@ -19,6 +20,22 @@ export class MQTTService {
 		this.mqttClient.subscribe("topic/disconnection");
 
 		this.wss = wss;
+
+		// Carrega os clientes do banco de dados
+		loadClients?.forEach((client) => {
+
+			this.locationData[client.id] = {
+				id: client.id,
+				fence: {
+					location: { latitude: client.fence.location.latitude, longitude: client.fence.location.longitude }, 
+					radius: client.fence.radius 
+				},
+				accident: client.accident ?? undefined,
+				currentLocation: { latitude: 0, longitude: 0 },
+			};
+		}) || {};
+
+		console.log("Clientes carregados do banco de dados:", this.locationData);
 	}
   
 	private onConnect() {
@@ -49,8 +66,17 @@ export class MQTTService {
 		const latitude = data.message.position.latitude;
 		const longitude = data.message.position.longitude;
 
+		// Novo cliente conectado
 		if(this.locationData[clientId] === undefined) {
-			this.locationData[clientId] = { latitude, longitude };
+			this.locationData[clientId] = {
+				id: clientId,
+				fence: {
+					location: { latitude: 0, longitude: 0 }, 
+					radius: 0 
+				},
+				accident: undefined,
+				currentLocation: { latitude, longitude }
+			};
 
 			// Envia a informação de conexão via websocket
 			this.wss.clients.forEach((client) => {
@@ -60,7 +86,9 @@ export class MQTTService {
 			});
 		}
 		else
-			this.locationData[clientId] = { latitude, longitude };
+			this.locationData[clientId].currentLocation = {
+				latitude, longitude 
+			};
 			
 	}
 
@@ -70,9 +98,10 @@ export class MQTTService {
 		this.removeClient(clientId!);
 	}
 	
+	// Remove o cliente da lista de clientes conectados
 	private removeClient(data: any) {
 		const clientId = data.client_id;
-		if (clientId && this.locationData[clientId]) {
+		if (clientId && this.locationData[clientId]) {	
 			delete this.locationData[clientId];
 
 			// Envia a informação de desconexão via websocket
@@ -84,7 +113,7 @@ export class MQTTService {
 		}
 	}
 
-	public getLocationData(): Record<string, { latitude: number; longitude: number }> {
+	public getLocationData(): Record<string, ClientDTO> {
 		return this.locationData;
 	}
 	
@@ -92,7 +121,7 @@ export class MQTTService {
 		return this.mqttClient;
 	}
 
-	prepareWebSocketMessage(type: string, data: any) {
+	private prepareWebSocketMessage(type: string, data: any) {
 		return JSON.stringify({
 			"type": type, 
 			"message": {

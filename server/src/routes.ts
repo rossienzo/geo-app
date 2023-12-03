@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 
 const routes = Router();
 
-routes.get("/", (req: Request, res: Response) => {
+routes.get("/", async (req: Request, res: Response) => {
 	const clientIds = req.mqttService.getLocationData();
 	return res.render("index.ejs", {client_ids: clientIds});
 });
@@ -22,6 +22,5 @@ routes.get("/location/:client_id", (req: Request, res: Response) => {
 		res.status(404).json({ error: "client_id not found" });
 	}
 });
-
 
 export default routes;
