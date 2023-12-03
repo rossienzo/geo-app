@@ -70,6 +70,7 @@ export class MQTTService {
 			const client = await clientRepository.getClientById(clientId);
 			const { fence } = client;
 			
+			// Calcula a distância entre o acidente e a cerca
 			const distance = Math.sqrt(Math.pow(position.latitude - fence.location.latitude, 2) + Math.pow(position.longitude - fence.location.longitude, 2));
 			console.log(distance);
 			if (distance > fence.radius) { 

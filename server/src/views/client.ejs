@@ -73,9 +73,7 @@
 
     // Obtem a localização do cliente
     function getLocation() {
-        let apiUrl = `/location/<%= client_id %>`;
-
-        fetch(apiUrl)
+        fetch(`/location/<%= client_id %>`)
             .then(response => response.json())
             .then(data => {
                 console.log(data)
@@ -113,13 +111,27 @@
         if(canDrawCircle)
         {
             // Adiciona um evento de clique ao mapa para obter coordenadas
-            map.on('click', function (e) {
+            map.on('click', async function (e) {
                 if (centerCircle === null && fenceCircle === null) { // Centro
                     centerCircle = e.latlng;
                     drawFencingText.innerText = 'Raio do circulo';
                 } else if (radiusCircle === null && fenceCircle === null) { // Raio
                     radiusCircle = centerCircle.distanceTo(e.latlng);
                     fenceCircle = addCircle(centerCircle, radiusCircle);
+                    
+                    await fetch(`http://localhost:3000/client/<%= client_id %>/fence`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            location: {
+                                latitude: centerCircle.lat,
+                                longitude: centerCircle.lng,
+                            },
+                            radius: radiusCircle
+                        })
+                    })
 
                     // Reseta o círculo
                     centerCircle = null;

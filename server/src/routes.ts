@@ -26,8 +26,6 @@ routes.get("/location/:client_id", (req: Request, res: Response) => {
 
 routes.post("/client/:client_id/fence", (req: Request, res: Response) => {
 	const clientId = req.params.client_id;
-	const location = req.body.location;
-	console.log(location);
 	
 	const clientRepository = new ClientRepository();
 	clientRepository.addFence(clientId, req.body)

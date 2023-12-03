@@ -11,5 +11,5 @@ __Flutter (/geo_app)__
 __Typescript/EJS (/server)__
 - Instale as dependências `npm i`.
 - execute em diferentes terminais os arquivos /mosquitto. (caso não utilize o broker público)
-- Execute a aplicação `npm run dev`.
+- Execute a aplicação `npm run db` para o json-server e `npm run dev` para o servidor web. 
 > O servidor será executado em: http://127.0.0.1:3000
