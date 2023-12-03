@@ -31,13 +31,15 @@
     // Inicia a atualização da localização do cliente
     document.addEventListener('DOMContentLoaded', (event) => {
             getLocation(); 
+            
+            
             setInterval(getLocation, 1000);
     });
 
     // Leaftlet - map
     let map;
     let markerGroup = L.layerGroup();
-
+    
     // Criação do cercado
     let canDrawCircle = false;
     let fenceCircle = null, centerCircle = null, radiusCircle = null;
@@ -45,7 +47,7 @@
     // Botão para criar cercado
     let drawFencingText = document.getElementById('drawFencingText');
     let btnDrawFencing = document.getElementById('drawFencing');
-    btnDrawFencing.addEventListener('click', function(e) { 
+    btnDrawFencing.addEventListener('click', async function(e) { 
         if (fenceCircle === null) {
             if(canDrawCircle) {
                 document.getElementById('drawFencing').innerText = 'Criar cercado';
@@ -59,6 +61,7 @@
 
         }
         else { // Remove o circulo do mapa
+            await updateClientFence(0, 0, 0);
             map.removeLayer(fenceCircle);
             fenceCircle = null;
             centerCircle = null;
@@ -70,6 +73,15 @@
             e.target.classList.add('btn-primary');
         }
     });
+
+    // Altera o botão para remoção do círculo
+    function changeBtnToRemove() {
+        btnDrawFencing.innerText = 'Remover cercado';
+        btnDrawFencing.classList.remove('btn-primary')
+        btnDrawFencing.classList.add('btn-danger');
+        drawFencingText.innerText = 'Centro do circulo';
+        drawFencingText.style.display = 'none';
+    }
 
     // Obtem a localização do cliente
     function getLocation() {
@@ -98,6 +110,20 @@
         if (!map) {
             map = L.map('map').setView([latitude, longitude], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            let fence_lat = '<%= fence_lat %>'
+            let fence_lng = '<%= fence_lng %>'
+            let fence_radius = '<%= fence_radius %>'
+
+             if(fence_lat != 0 && fence_lng != 0 && fence_radius != 0) {
+                fenceCircle = addCircle({
+                    lat: fence_lat, 
+                    lng: fence_lng}, fence_radius);
+                
+                changeBtnToRemove();
+             }
+                
+            
         }
 
         // Remove todas as camadas do grupo de camadas
@@ -119,19 +145,7 @@
                     radiusCircle = centerCircle.distanceTo(e.latlng);
                     fenceCircle = addCircle(centerCircle, radiusCircle);
                     
-                    await fetch(`http://localhost:3000/client/<%= client_id %>/fence`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            location: {
-                                latitude: centerCircle.lat,
-                                longitude: centerCircle.lng,
-                            },
-                            radius: radiusCircle
-                        })
-                    })
+                    updateClientFence(centerCircle.lat, centerCircle.lng, radiusCircle);
 
                     // Reseta o círculo
                     centerCircle = null;
@@ -139,11 +153,7 @@
                     canDrawCircle = false;
                     
                     // Altera o botão para remoção do círculo
-                    btnDrawFencing.innerText = 'Remover cercado';
-                    btnDrawFencing.classList.remove('btn-primary')
-                    btnDrawFencing.classList.add('btn-danger');
-                    drawFencingText.innerText = 'Centro do circulo';
-                    drawFencingText.style.display = 'none';
+                    changeBtnToRemove();
                 }
                 else return false;
             });
@@ -169,6 +179,24 @@
         }
         return null;
     }
+
+    async function updateClientFence(latidade, longitude, radius) {
+        await fetch(`http://localhost:3000/client/<%= client_id %>/fence`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                location: {
+                    latitude: latidade,
+                    longitude: longitude,
+                },
+                radius: radius
+            })
+        })
+    }
+
+    
 </script>
 
 </html>

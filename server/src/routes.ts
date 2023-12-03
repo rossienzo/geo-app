@@ -8,9 +8,27 @@ routes.get("/", async (req: Request, res: Response) => {
 	return res.render("index.ejs", {client_ids: clientIds});
 });
 
-routes.get("/client/:client_id", (req: Request, res: Response) => {
+routes.get("/client/:client_id", async (req: Request, res: Response) => {
 	const clientId = req.params.client_id;
-	return res.render("client.ejs", {client_id: clientId});
+	
+	try {
+		const clientRepository = new ClientRepository();
+		const client = await clientRepository.getClientById(clientId);
+
+		if (!client) {
+			return res.status(404).json({ error: "client_id not found" });
+		}
+
+		return res.render("client.ejs", { 
+			client_id: clientId,
+			fence_lng: client.fence.location.longitude,
+			fence_lat: client.fence.location.latitude, 
+			fence_radius: client.fence.radius
+		});
+	} catch (error) {
+		return res.status(500).json({ error: error });
+	}
+	
 });
 
 routes.get("/location/:client_id", (req: Request, res: Response) => {
