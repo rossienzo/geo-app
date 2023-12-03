@@ -30,7 +30,6 @@ export class MQTTService {
 		
 		// Envia a informação de acidente via websocket
 		if (topic === "topic/accident") {
-			//const message = {"type": "accident", "message": {"client_id": data.client_id, "position": data.message.position }};
 			this.wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN) {
 					client.send(this.prepareWebSocketMessage("accident", data));
