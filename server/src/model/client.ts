@@ -10,7 +10,7 @@ export interface Fence {
 }
 
 export interface Accident {
-    location: Location;
+    location?: Location;
 }
 
 export interface ClientDTO {
@@ -18,24 +18,4 @@ export interface ClientDTO {
     fence: Fence;
     accident?: Accident;
     currentLocation: Location;
-}
-
-export class Client implements ClientDTO {
-
-	id: string;
-	fence: {
-        location: Location;
-        radius: number;
-    };
-	accident?: {
-        location: Location;
-    };
-	currentLocation: Location;
-
-	constructor(clientDTO: ClientDTO) {
-		this.id = clientDTO.id;
-		this.fence = clientDTO.fence;
-		clientDTO.accident && (this.accident = clientDTO.accident);
-		this.currentLocation = clientDTO.currentLocation;
-	}
 }
