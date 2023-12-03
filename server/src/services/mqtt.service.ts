@@ -60,11 +60,24 @@ export class MQTTService {
 			});
 
 			const parsedMessage = JSON.parse(message.toString());
-			console.log(parsedMessage);
+			
 			const clientId = parsedMessage?.client_id;
 			const position = parsedMessage?.message.position;
+
 			const clientRepository = new ClientRepository();
 			clientRepository.saveAccident(clientId, position);
+
+			const client = await clientRepository.getClientById(clientId);
+			const { fence } = client;
+			
+			const distance = Math.sqrt(Math.pow(position.latitude - fence.location.latitude, 2) + Math.pow(position.longitude - fence.location.longitude, 2));
+			console.log(distance);
+			if (distance > fence.radius) { 
+				console.log("Acidente fora da área de cobertura");
+			} else {
+				console.log("Acidente dentro da área de cobertura");
+			}
+
 		}
 
 		console.log(`topic: ${topic}`, data);
