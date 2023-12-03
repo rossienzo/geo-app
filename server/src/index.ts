@@ -1,10 +1,11 @@
+/* eslint-disable linebreak-style */
+import cors from "cors";
 import express from "express";
-import routes from "./routes";
 import http from "http";
 import * as WebSocket from "ws";
-import { MQTTService } from "./services/mqtt.service";
-import cors from "cors";
 import { ClientRepository } from "./db/repositories/client";
+import routes from "./routes";
+import { MQTTService } from "./services/mqtt.service";
 
 export const DB_URL = "http://localhost:3001";
 
@@ -21,9 +22,7 @@ const startServer = async () => {
 	const wss = new WebSocket.Server({ server });
 
 	try {
-		const clientRepository = new ClientRepository();
-		const loadClients = await clientRepository.getAllClients();
-		const mqttService = new MQTTService(wss, loadClients);
+		const mqttService = new MQTTService(wss);
 
 		// configura o ejs	
 		app.set("view engine", "ejs");
@@ -63,6 +62,10 @@ const startServer = async () => {
 				}
 			});
 		});
+
+		const clientRepository = new ClientRepository();
+		const loadClients = await clientRepository.getAllClients();
+		mqttService.chargeClients(loadClients);
 
 		// Middleware Websocket e MQTT
 		app.use((req, res, next) => {

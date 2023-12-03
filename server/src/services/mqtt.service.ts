@@ -1,5 +1,6 @@
 import mqtt from "mqtt";
 import * as WebSocket from "ws";
+import { ClientRepository } from "../db/repositories/client";
 import { ClientDTO } from "../model/client";
 
 
@@ -21,28 +22,33 @@ export class MQTTService {
 
 		this.wss = wss;
 
-		// Carrega os clientes do banco de dados
-		loadClients?.forEach((client) => {
+		if (loadClients) {
+			this.chargeClients(loadClients);
+		}
 
+		console.log("Clientes carregados do banco de dados:", this.locationData);
+	}
+
+	public chargeClients(loadClients: ClientDTO[]) {
+		// Carrega os clientes do banco de dados
+		loadClients.forEach((client) => {
 			this.locationData[client.id] = {
 				id: client.id,
 				fence: {
 					location: { latitude: client.fence.location.latitude, longitude: client.fence.location.longitude }, 
 					radius: client.fence.radius 
 				},
-				accident: client.accident ?? undefined,
+				accident: client.accident || undefined,
 				currentLocation: { latitude: 0, longitude: 0 },
 			};
-		}) || {};
-
-		console.log("Clientes carregados do banco de dados:", this.locationData);
+		});
 	}
   
 	private onConnect() {
 		console.log("Conectado com sucesso!");
 	}
   
-	private onMessage(topic: string, message: Buffer) {
+	private async onMessage(topic: string, message: Buffer) {
 		const data = JSON.parse(message.toString());
 		
 		// Envia a informação de acidente via websocket
@@ -52,6 +58,13 @@ export class MQTTService {
 					client.send(this.prepareWebSocketMessage("accident", data));
 				}
 			});
+
+			const parsedMessage = JSON.parse(message.toString());
+			console.log(parsedMessage);
+			const clientId = parsedMessage?.client_id;
+			const position = parsedMessage?.message.position;
+			const clientRepository = new ClientRepository();
+			clientRepository.saveAccident(clientId, position);
 		}
 
 		console.log(`topic: ${topic}`, data);
@@ -68,22 +81,27 @@ export class MQTTService {
 
 		// Novo cliente conectado
 		if(this.locationData[clientId] === undefined) {
-			this.locationData[clientId] = {
+			const clientData = {
 				id: clientId,
 				fence: {
 					location: { latitude: 0, longitude: 0 }, 
 					radius: 0 
 				},
-				accident: undefined,
+				accident: {},
 				currentLocation: { latitude, longitude }
 			};
 
+			this.locationData[clientId] = clientData;
+
 			// Envia a informação de conexão via websocket
-			this.wss.clients.forEach((client) => {
+			this.wss.clients.forEach((client: any) => {
 				if (client.readyState === WebSocket.OPEN) {
 					client.send(this.prepareWebSocketMessage("connection", data));
 				}
 			});
+
+			const clientRepository = new ClientRepository();
+			await clientRepository.save(clientData);
 		}
 		else
 			this.locationData[clientId].currentLocation = {
