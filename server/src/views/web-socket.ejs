@@ -3,7 +3,7 @@
 
 <!-- Detecta se veio alguma informação do tópico de acidente -->
 <script> 
-    const socket = new WebSocket('ws://localhost:3001');
+    const socket = new WebSocket('ws://localhost:3000');
     socket.onmessage = (e) => {
         const data = JSON.parse(e.data);
 
