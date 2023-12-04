@@ -16,6 +16,6 @@ export interface Accident {
 export interface ClientDTO {
     id: string;
     fence: Fence;
-    accident?: Accident;
+    accident?: Location;
     currentLocation: Location;
 }
