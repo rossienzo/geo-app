@@ -10,12 +10,12 @@
         "radius": 0
       },
       "accident": {
-        "latitude": -22.8593288,
-        "longitude": -42.0342473
+        "latitude": -22.859357,
+        "longitude": -42.0342135
       },
       "currentLocation": {
-        "latitude": -22.859348,
-        "longitude": -42.0342256
+        "latitude": -22.8593869,
+        "longitude": -42.0341726
       }
     }
   ]

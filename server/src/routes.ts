@@ -14,7 +14,7 @@ routes.get("/client/:client_id", async (req: Request, res: Response) => {
 	try {
 		const clientRepository = new ClientRepository();
 		const client = await clientRepository.getClientById(clientId);
-
+		
 		if (!client) {
 			return res.status(404).json({ error: "client_id not found" });
 		}
@@ -23,10 +23,12 @@ routes.get("/client/:client_id", async (req: Request, res: Response) => {
 			client_id: clientId,
 			fence_lng: client.fence.location.longitude,
 			fence_lat: client.fence.location.latitude, 
-			fence_radius: client.fence.radius
+			fence_radius: client.fence.radius,
+			acident_lat: client.accident!.latitude ?? 0,
+			acident_lng: client.accident!.longitude ?? 0,	
 		});
 	} catch (error) {
-		return res.status(500).json({ error: error });
+		return res.status(500).json({ error: error!.message });
 	}
 	
 });

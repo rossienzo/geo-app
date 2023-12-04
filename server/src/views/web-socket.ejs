@@ -27,7 +27,7 @@
                 const a = li.getElementsByTagName('a')[0];
                 return a && a.textContent === data.message.client_id;
             });
-
+            
             if(liExistente) {
                 const aText = liExistente.getElementsByTagName('a')[0];
                 if(data.type === "disconnection") {
