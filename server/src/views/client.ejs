@@ -5,7 +5,6 @@
         <h1 class="text-center my-4">Geolocalização</h1>
 
         <%- include('web-socket') -%>
-        
         <div class="row">
             <div class="col-md-6 text-center">
                 <p class="font-weight-bold">Latitude: <span id="latitude"></span></p>
@@ -32,6 +31,15 @@
     document.addEventListener('DOMContentLoaded', (event) => {
             getLocation(); 
             
+            const alert = document.getElementById('accident-alert');
+            let acident_lat = '<%= acident_lat %>'
+            let fence_lng = '<%= fence_lng %>'
+            let acident_lng = '<%= acident_lng %>'
+
+            if(acident_lat != 0 && acident_lng != 0) {
+                alert.style.display = 'block';
+                alert.innerHTML = 'Este cliente sofreu um acidente!';
+            }
             
             setInterval(getLocation, 1000);
     });
@@ -122,8 +130,6 @@
                 
                 changeBtnToRemove();
              }
-                
-            
         }
 
         // Remove todas as camadas do grupo de camadas

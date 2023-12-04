@@ -41,6 +41,8 @@ export class MQTTService {
 				accident: client.accident || undefined,
 				currentLocation: { latitude: 0, longitude: 0 },
 			};
+
+			
 		});
 	}
   
@@ -69,7 +71,7 @@ export class MQTTService {
 
 			const client = await clientRepository.getClientById(clientId);
 			const { fence } = client;
-			
+
 			// Calcula a distância entre o acidente e a cerca
 			const distance = Math.sqrt(Math.pow(position.latitude - fence.location.latitude, 2) + Math.pow(position.longitude - fence.location.longitude, 2));
 			console.log(distance);
@@ -134,7 +136,7 @@ export class MQTTService {
 	private removeClient(data: any) {
 		const clientId = data.client_id;
 		if (clientId && this.locationData[clientId]) {	
-			delete this.locationData[clientId];
+			//delete this.locationData[clientId];
 
 			// Envia a informação de desconexão via websocket
 			this.wss.clients.forEach((client) => {
